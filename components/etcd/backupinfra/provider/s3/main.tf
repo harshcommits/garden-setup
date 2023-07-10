@@ -16,7 +16,7 @@ provider "aws" {
   access_key = var.ACCESS_KEY
   secret_key = var.SECRET_KEY
   region     = var.REGION
-  version    = "=3.30"
+  version    = "=3.76.1"
 }
 
 //=====================================================================
@@ -29,6 +29,15 @@ resource "aws_s3_bucket" "bucket" {
   tags = {
     Name = var.LANDSCAPE
   }
+}
+
+resource "aws_s3_bucket_public_access_block" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 //=====================================================================

@@ -203,6 +203,15 @@ landscape:
       # to overwrite:
       # set image_repo here (mandatory)
       # set image_tag here (defaults to latest, if image_repo is set and image_tag is not given)
+    terminal-image:
+      container:
+        <<: (( merge ))
+        image_tag: 0.22.0
+        image_repo: eu.gcr.io/gardener-project/gardener/ops-toolbelt
+      containerOperator:
+        <<: (( merge ))
+        image_tag: (( container.image_tag ))
+        image_repo: (( container.image_repo ))
     dns-controller-manager:
       <<: (( merge ))
       tag: (( valid( branch ) -or valid( commit ) ? ~~ :.dependency_versions.versions.dns-controller-manager.version ))
@@ -212,20 +221,10 @@ landscape:
     cert-manager:
       controller:
         <<: (( merge ))
-        tag: (( valid( branch ) -or valid( commit ) ? ~~ :helm_tag )) # only used for CRDs
-        repo: "https://github.com/jetstack/cert-manager.git"
-        helm_repo: "https://charts.jetstack.io"
-        helm_tag: "v1.8.1"
-      cainjector:
-        <<: (( merge ))
-        tag: (( valid( branch ) -or valid( commit ) ? ~~ :cert-manager.controller.helm_tag ))
+        tag: (( valid( branch ) -or valid( commit ) ? ~~ :.dependency_versions.versions.cert-management.version ))
         image_tag: (( valid( tag ) ? tag :~~ ))
         image_repo: (( ~~ ))
-      webhook:
-        <<: (( merge ))
-        tag: (( valid( branch ) -or valid( commit ) ? ~~ :cert-manager.controller.helm_tag ))
-        image_tag: (( valid( tag ) ? tag :~~ ))
-        image_repo: (( ~~ ))
+        repo: (( .dependency_versions.versions.cert-management.repo ))
       cert-dns-bridge:
         <<: (( merge ))
         tag: (( valid( branch ) -or valid( commit ) ? ~~ :"2.1.0" ))
@@ -606,11 +605,8 @@ validation:
         - - and
           - ["optionalfield", "HVPA", ["type", "bool"]]
           - ["optionalfield", "HVPAForShootedSeed", ["type", "bool"]]
-          - ["optionalfield", "ManagedIstio", ["type", "bool"]]
-          - ["optionalfield", "APIServerSNI", ["type", "bool"]]
           - ["optionalfield", "SeedChange", ["type", "bool"]]
           - ["optionalfield", "SeedKubeScheduler", ["type", "bool"]]
-          - ["optionalfield", "ReversedVPN", ["type", "bool"]]
           - ["optionalfield", "CopyEtcdBackupsDuringControlPlaneMigration", ["type", "bool"]]
           - ["optionalfield", "ForceRestore", ["type", "bool"]]
           - ["optionalfield", "ShootCARotation", ["type", "bool"]]
